@@ -1,0 +1,60 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Buttons</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 24px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+  .group { display: flex; flex-direction: column; gap: 8px; }
+  .label { font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tracking-caps); font-weight: 600; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    height: 38px; padding: 0 16px; border-radius: var(--radius-md);
+    font: 600 14px var(--font-sans); cursor: pointer; border: 1px solid transparent;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .btn.primary { background: var(--primary-500); color: #fff; }
+  .btn.primary:hover { background: var(--primary-600); }
+  .btn.secondary { background: #fff; color: var(--fg-1); border-color: var(--border-1); }
+  .btn.secondary:hover { background: var(--surface-2); }
+  .btn.ghost { background: transparent; color: var(--fg-1); }
+  .btn.ghost:hover { background: var(--surface-2); }
+  .btn.danger { background: var(--red-500); color: #fff; }
+  .btn.danger:hover { background: var(--red-600); }
+  .btn.sm { height: 30px; padding: 0 10px; font-size: 12px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+</style></head>
+<body>
+  <div class="grid">
+    <div class="group">
+      <div class="label">Primary</div>
+      <div class="row">
+        <button class="btn primary">Adicionar ao Carrinho</button>
+        <button class="btn primary sm">Salvar</button>
+        <button class="btn primary" disabled>Disabled</button>
+      </div>
+    </div>
+    <div class="group">
+      <div class="label">Secondary</div>
+      <div class="row">
+        <button class="btn secondary">Cancelar</button>
+        <button class="btn secondary sm">Editar</button>
+      </div>
+    </div>
+    <div class="group">
+      <div class="label">Ghost</div>
+      <div class="row">
+        <button class="btn ghost">Esqueci a senha</button>
+        <button class="btn ghost sm">Limpar filtros</button>
+      </div>
+    </div>
+    <div class="group">
+      <div class="label">Destructive</div>
+      <div class="row">
+        <button class="btn danger">Remover</button>
+        <button class="btn danger sm">Cancelar pedido</button>
+      </div>
+    </div>
+  </div>
+</body></html>

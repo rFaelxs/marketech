@@ -1,0 +1,48 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Topbar + sidebar shell</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 0; background: var(--surface-1); }
+  .shell { display: grid; grid-template-columns: 200px 1fr; height: 230px; border-bottom: 1px solid var(--border-1); }
+  .side { background: #fff; border-right: 1px solid var(--border-1); padding: 14px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .brand { padding: 6px 10px 14px; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--fg-2); cursor: pointer; }
+  .item:hover { background: var(--surface-2); color: var(--fg-1); }
+  .item.active { background: var(--primary-50); color: var(--primary-700); font-weight: 600; }
+  .main { display: flex; flex-direction: column; }
+  .top { height: 56px; background: #fff; border-bottom: 1px solid var(--border-1); display: flex; justify-content: space-between; align-items: center; padding: 0 18px; }
+  .role { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--border-1); border-radius: var(--radius-md); font-size: 12px; font-weight: 600; cursor: pointer; }
+  .role .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary-500); }
+  .body { padding: 18px; }
+  h1 { font-size: 22px; }
+  svg { display: block; }
+</style></head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="brand"><img src="../assets/logo.svg" width="130" alt=""></div>
+      <div class="item active">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Catálogo
+      </div>
+      <div class="item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+        Carrinho
+      </div>
+      <div class="item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Meus Pedidos
+      </div>
+    </aside>
+    <div class="main">
+      <header class="top">
+        <h1>Catálogo</h1>
+        <div class="role"><span class="dot"></span>Cliente <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+      </header>
+      <div class="body">
+        <p style="color:var(--fg-2);font-size:13px">Shell padrão: sidebar 240px · topbar 64px · conteúdo sobre <code style="font-family:var(--font-mono);font-size:12px">surface-1</code>.</p>
+      </div>
+    </div>
+  </div>
+</body></html>

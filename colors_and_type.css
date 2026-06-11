@@ -1,0 +1,225 @@
+/* =========================================================
+ * Marketech — Design Tokens
+ * Colors, type, spacing, shadows, radii.
+ * Reference these vars in every component / kit.
+ * ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---------- COLOR PALETTE ---------- */
+
+  /* Primary — Marketech Blue */
+  --primary-50:  #EFF4FF;
+  --primary-100: #DBE5FE;
+  --primary-200: #BFD0FD;
+  --primary-300: #93B0FB;
+  --primary-400: #6088F7;
+  --primary-500: #2563EB;  /* brand anchor */
+  --primary-600: #1D4ED8;
+  --primary-700: #1E40AF;
+  --primary-800: #1E3A8A;
+  --primary-900: #172554;
+
+  /* Verde Mercado — fresh / success */
+  --green-50:  #F0FDF4;
+  --green-100: #DCFCE7;
+  --green-500: #16A34A;
+  --green-600: #15803D;
+  --green-700: #166534;
+
+  /* Âmbar — attention / in-progress */
+  --amber-50:  #FFFBEB;
+  --amber-100: #FEF3C7;
+  --amber-500: #F59E0B;
+  --amber-600: #D97706;
+  --amber-700: #B45309;
+
+  /* Vermelho — danger / late orders */
+  --red-50:   #FEF2F2;
+  --red-100:  #FEE2E2;
+  --red-500:  #DC2626;
+  --red-600:  #B91C1C;
+  --red-700:  #991B1B;
+
+  /* Neutrals (Zinc) */
+  --zinc-50:  #FAFAFA;
+  --zinc-100: #F4F4F5;
+  --zinc-200: #E4E4E7;
+  --zinc-300: #D4D4D8;
+  --zinc-400: #A1A1AA;
+  --zinc-500: #71717A;
+  --zinc-600: #52525B;
+  --zinc-700: #3F3F46;
+  --zinc-800: #27272A;
+  --zinc-900: #18181B;
+
+  /* Semantic — surfaces */
+  --surface-0: #FFFFFF;   /* card / overlay */
+  --surface-1: #FAFAFA;   /* page background */
+  --surface-2: #F4F4F5;   /* nested / hover */
+  --surface-3: #E4E4E7;   /* divider tint */
+
+  /* Semantic — text */
+  --fg-1: #18181B;   /* primary text */
+  --fg-2: #52525B;   /* secondary text */
+  --fg-3: #A1A1AA;   /* tertiary / placeholder */
+  --fg-on-primary: #FFFFFF;
+  --fg-link: var(--primary-600);
+
+  /* Semantic — borders */
+  --border-1: #E4E4E7;
+  --border-2: #D4D4D8;
+  --border-focus: var(--primary-500);
+
+  /* Status — pairing bg + fg for badges */
+  --status-confirmado-bg: var(--primary-50);
+  --status-confirmado-fg: var(--primary-700);
+  --status-separando-bg: var(--amber-50);
+  --status-separando-fg: var(--amber-700);
+  --status-transporte-bg: #EEF2FF;
+  --status-transporte-fg: #4338CA;
+  --status-entregue-bg: var(--green-50);
+  --status-entregue-fg: var(--green-700);
+  --status-cancelado-bg: var(--red-50);
+  --status-cancelado-fg: var(--red-700);
+
+  /* ---------- TYPOGRAPHY ---------- */
+
+  --font-sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Type scale */
+  --text-xs:   12px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-md:   16px;
+  --text-lg:   18px;
+  --text-xl:   20px;
+  --text-2xl:  24px;
+  --text-3xl:  30px;
+  --text-4xl:  36px;
+  --text-5xl:  44px;
+
+  /* Weights */
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semi:    600;
+  --weight-bold:    700;
+  --weight-black:   800;
+
+  /* Line heights */
+  --leading-tight: 1.15;
+  --leading-snug:  1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* Letter spacing */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-caps: 0.08em;
+
+  /* ---------- SPACING ---------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 48px;
+  --space-10: 64px;
+  --space-12: 96px;
+
+  /* ---------- RADII ---------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-pill: 9999px;
+
+  /* ---------- SHADOWS ---------- */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 6px 16px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.12);
+  --shadow-focus: 0 0 0 3px rgb(37 99 235 / 0.25);
+
+  /* ---------- MOTION ---------- */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-med:  200ms;
+  --dur-slow: 300ms;
+
+  /* ---------- LAYOUT ---------- */
+  --container-max: 1280px;
+  --sidebar-w: 240px;
+  --sidebar-w-collapsed: 64px;
+  --topbar-h: 64px;
+}
+
+/* =========================================================
+ * SEMANTIC ELEMENT STYLES
+ * Reset-y baseline + typed defaults for h1..p.
+ * ========================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--surface-1);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--fg-1);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-bold);
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--text-4xl); line-height: var(--leading-tight); font-weight: var(--weight-bold); }
+h2 { font-size: var(--text-3xl); line-height: var(--leading-tight); font-weight: var(--weight-bold); }
+h3 { font-size: var(--text-2xl); line-height: var(--leading-snug); font-weight: var(--weight-semi); }
+h4 { font-size: var(--text-xl);  line-height: var(--leading-snug); font-weight: var(--weight-semi); }
+h5 { font-size: var(--text-lg);  line-height: var(--leading-snug); font-weight: var(--weight-semi); }
+h6 { font-size: var(--text-base); line-height: var(--leading-snug); font-weight: var(--weight-semi); text-transform: uppercase; letter-spacing: var(--tracking-caps); color: var(--fg-2); }
+
+p {
+  margin: 0;
+  color: var(--fg-1);
+  text-wrap: pretty;
+}
+
+small { font-size: var(--text-xs); color: var(--fg-2); }
+
+a {
+  color: var(--fg-link);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+a:hover { color: var(--primary-700); text-decoration: underline; text-underline-offset: 2px; }
+
+code, kbd, .mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tabular nums everywhere money / counters live */
+.num { font-variant-numeric: tabular-nums; }
+
+/* Focus ring (use on interactive elements) */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--radius-md);
+}

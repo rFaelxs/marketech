@@ -1,0 +1,30 @@
+<!-- @dsCard group="Brand" -->
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Logo</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 24px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .swatch { border: 1px solid var(--border-1); border-radius: var(--radius-md); padding: 28px 20px; display: flex; align-items: center; justify-content: center; min-height: 110px; }
+  .swatch.dark { background: var(--primary-700); border-color: var(--primary-700); }
+  .swatch.light { background: var(--surface-1); }
+  .swatch.mark { background: var(--surface-0); }
+  .label { font-size: 11px; color: var(--fg-3); text-transform: uppercase; letter-spacing: var(--tracking-caps); margin-top: 8px; }
+  img { display: block; max-width: 100%; height: auto; }
+</style></head>
+<body>
+  <div class="row">
+    <div>
+      <div class="swatch light"><img src="../assets/logo.svg" alt="Marketech logo" width="180"></div>
+      <div class="label">Lockup — light bg</div>
+    </div>
+    <div>
+      <div class="swatch dark"><img src="../assets/logo-white.svg" alt="Marketech logo white" width="180"></div>
+      <div class="label">Lockup — dark bg</div>
+    </div>
+    <div>
+      <div class="swatch mark"><img src="../assets/logo-mark.svg" alt="Marketech mark" width="56"></div>
+      <div class="label">App icon / favicon</div>
+    </div>
+  </div>
+</body></html>

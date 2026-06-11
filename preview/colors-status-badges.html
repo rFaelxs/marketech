@@ -1,0 +1,26 @@
+<!-- @dsCard group="Colors" -->
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Status badges</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 28px 24px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 10px; border-radius: var(--radius-sm);
+    font-size: 12px; font-weight: 600;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .caption { font-size: 11px; color: var(--fg-3); margin-top: 14px; }
+</style></head>
+<body>
+  <div class="row">
+    <div class="badge" style="background:#EFF4FF;color:#1E40AF"><span class="dot"></span>Confirmado</div>
+    <div class="badge" style="background:#FFFBEB;color:#B45309"><span class="dot"></span>Separando</div>
+    <div class="badge" style="background:#EEF2FF;color:#4338CA"><span class="dot"></span>Em Transporte</div>
+    <div class="badge" style="background:#F0FDF4;color:#166534"><span class="dot"></span>Entregue</div>
+    <div class="badge" style="background:#FEF2F2;color:#991B1B"><span class="dot"></span>Cancelado</div>
+    <div class="badge" style="background:#F4F4F5;color:#52525B"><span class="dot"></span>Inativo</div>
+  </div>
+  <div class="caption">Pareados em <code style="font-family:var(--font-mono);font-size:11px">--status-{nome}-bg</code> / <code style="font-family:var(--font-mono);font-size:11px">--status-{nome}-fg</code>.</div>
+</body></html>

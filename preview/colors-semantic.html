@@ -1,0 +1,42 @@
+<!-- @dsCard group="Colors" -->
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Status colors</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 24px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .col { border: 1px solid var(--border-1); border-radius: var(--radius-md); overflow: hidden; }
+  .col header { padding: 12px 14px 10px; }
+  .name { font-size: 13px; font-weight: 700; color: var(--fg-1); }
+  .use { font-size: 11px; color: var(--fg-2); margin-top: 2px; }
+  .ramp { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+  .step { aspect-ratio: 2 / 1; display: flex; align-items: flex-end; padding: 8px; font-size: 10px; font-family: var(--font-mono); }
+</style></head>
+<body>
+  <div class="grid">
+    <div class="col">
+      <header><div class="name" style="color:#15803D">Verde Mercado</div><div class="use">Sucesso · Em estoque · Entregue</div></header>
+      <div class="ramp">
+        <div class="step" style="background:#F0FDF4;color:#166534">50</div>
+        <div class="step" style="background:#16A34A;color:#fff">500</div>
+        <div class="step" style="background:#166534;color:#fff">700</div>
+      </div>
+    </div>
+    <div class="col">
+      <header><div class="name" style="color:#B45309">Âmbar</div><div class="use">Atenção · Separando · Estoque baixo</div></header>
+      <div class="ramp">
+        <div class="step" style="background:#FFFBEB;color:#B45309">50</div>
+        <div class="step" style="background:#F59E0B;color:#fff">500</div>
+        <div class="step" style="background:#B45309;color:#fff">700</div>
+      </div>
+    </div>
+    <div class="col">
+      <header><div class="name" style="color:#991B1B">Vermelho</div><div class="use">Erro · Cancelar · Pedido &gt; 20min</div></header>
+      <div class="ramp">
+        <div class="step" style="background:#FEF2F2;color:#991B1B">50</div>
+        <div class="step" style="background:#DC2626;color:#fff">500</div>
+        <div class="step" style="background:#991B1B;color:#fff">700</div>
+      </div>
+    </div>
+  </div>
+</body></html>

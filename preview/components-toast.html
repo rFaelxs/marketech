@@ -1,0 +1,43 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Toast</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .toast {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; background: #fff;
+    border: 1px solid var(--border-1); border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md); font-size: 14px;
+    max-width: 480px;
+  }
+  .toast .icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+  .toast.success .icon { background: var(--green-100); color: var(--green-700); }
+  .toast.info .icon { background: var(--primary-50); color: var(--primary-700); }
+  .toast.warn .icon { background: var(--amber-100); color: var(--amber-700); }
+  .toast .msg { flex: 1; color: var(--fg-1); }
+  .toast .undo { color: var(--primary-600); font-weight: 600; cursor: pointer; padding: 4px 8px; border-radius: var(--radius-sm); }
+  .toast .undo:hover { background: var(--surface-2); }
+  .toast .x { color: var(--fg-3); cursor: pointer; }
+</style></head>
+<body>
+  <div class="toast success">
+    <div class="icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <div class="msg">Item adicionado ao carrinho.</div>
+  </div>
+  <div class="toast info">
+    <div class="icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <div class="msg">Item removido do carrinho.</div>
+    <div class="undo">Desfazer (5s)</div>
+  </div>
+  <div class="toast warn">
+    <div class="icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="msg">Pedido <span class="mono" style="font-family:var(--font-mono);font-size:13px">#MK-1038</span> aguarda há mais de 20 min.</div>
+  </div>
+</body></html>

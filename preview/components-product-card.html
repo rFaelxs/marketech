@@ -1,0 +1,65 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Product card</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card {
+    background: #fff; border: 1px solid var(--border-1); border-radius: var(--radius-md);
+    overflow: hidden; box-shadow: var(--shadow-xs);
+    transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .card:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+  .img { aspect-ratio: 1; background: var(--surface-2); display: flex; align-items: center; justify-content: center; color: var(--fg-3); }
+  .body { padding: 12px; }
+  .name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .price { font-family: var(--font-mono); font-size: 16px; font-weight: 500; margin-top: 6px; }
+  .stock { font-size: 11px; color: var(--green-700); margin-top: 2px; }
+  .stock.low { color: var(--amber-700); }
+  .stock.out { color: var(--red-700); }
+  .add {
+    margin-top: 10px; width: 100%; height: 32px;
+    background: var(--primary-500); color: #fff; border: 0; border-radius: var(--radius-sm);
+    font: 600 12px var(--font-sans); cursor: pointer;
+  }
+  .add:hover { background: var(--primary-600); }
+  .add.disabled { background: var(--surface-2); color: var(--fg-3); cursor: not-allowed; }
+</style></head>
+<body>
+  <div class="grid">
+    <div class="card">
+      <div class="img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7h16l-1 13H5L4 7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+      </div>
+      <div class="body">
+        <div class="name">Arroz Branco Tipo 1<br>5 kg</div>
+        <div class="price">R$ 24,90</div>
+        <div class="stock">42 un. em estoque</div>
+        <button class="add">Adicionar</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/></svg>
+      </div>
+      <div class="body">
+        <div class="name">Maçã Gala<br>kg</div>
+        <div class="price">R$ 8,49</div>
+        <div class="stock low">Restam 3 un.</div>
+        <button class="add">Adicionar</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="img">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="3" width="14" height="18" rx="2"/></svg>
+      </div>
+      <div class="body">
+        <div class="name">Leite Integral<br>1 L</div>
+        <div class="price">R$ 5,29</div>
+        <div class="stock out">Sem estoque</div>
+        <button class="add disabled" disabled>Indisponível</button>
+      </div>
+    </div>
+  </div>
+</body></html>

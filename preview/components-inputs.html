@@ -1,0 +1,48 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Form inputs</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 24px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .label { font-size: 12px; font-weight: 600; color: var(--fg-2); }
+  .input {
+    height: 40px; padding: 0 12px; border: 1px solid var(--border-1); border-radius: var(--radius-md);
+    font: 400 14px var(--font-sans); color: var(--fg-1); background: #fff;
+    transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .input:focus { outline: none; border-color: var(--primary-500); box-shadow: var(--shadow-focus); }
+  .input::placeholder { color: var(--fg-3); }
+  .input.error { border-color: var(--red-500); }
+  .with-icon { position: relative; }
+  .with-icon .input { padding-left: 36px; }
+  .with-icon svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--fg-3); }
+  .help { font-size: 11px; color: var(--fg-3); }
+  .help.err { color: var(--red-600); }
+</style></head>
+<body>
+  <div class="grid">
+    <div class="field">
+      <div class="label">E-mail</div>
+      <input class="input" type="email" placeholder="cliente@test.com">
+    </div>
+    <div class="field">
+      <div class="label">Senha</div>
+      <input class="input" type="password" placeholder="••••••••" value="senha123" style="border-color:var(--primary-500);box-shadow:var(--shadow-focus)">
+      <div class="help">Foco — anel 3px primary/25%</div>
+    </div>
+    <div class="field">
+      <div class="label">Buscar produto</div>
+      <div class="with-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        <input class="input" type="search" placeholder="Buscar por nome ou EAN…">
+      </div>
+    </div>
+    <div class="field">
+      <div class="label">CEP</div>
+      <input class="input error" type="text" value="00000-000">
+      <div class="help err">CEP não encontrado.</div>
+    </div>
+  </div>
+</body></html>

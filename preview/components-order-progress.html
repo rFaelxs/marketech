@@ -1,0 +1,37 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Order progress</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { padding: 28px 24px; }
+  .ord { background: #fff; border: 1px solid var(--border-1); border-radius: var(--radius-md); padding: 18px 20px; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+  .id { font-family: var(--font-mono); font-size: 13px; color: var(--fg-2); }
+  .total { font-family: var(--font-mono); font-size: 16px; font-weight: 600; }
+  .progress { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .step { display: flex; flex-direction: column; gap: 6px; }
+  .bar { height: 4px; border-radius: 2px; background: var(--surface-2); }
+  .step.done .bar { background: var(--primary-500); }
+  .step.active .bar { background: var(--primary-500); }
+  .step .name { font-size: 11px; font-weight: 600; color: var(--fg-3); }
+  .step.done .name, .step.active .name { color: var(--fg-1); }
+  .step.active .name { color: var(--primary-600); }
+  .meta { display: flex; gap: 12px; font-size: 12px; color: var(--fg-2); margin-top: 14px; }
+</style></head>
+<body>
+  <div class="ord">
+    <div class="top">
+      <div>
+        <div style="font-size:14px;font-weight:600">Pedido <span class="id">#MK-1042</span></div>
+        <div style="font-size:12px;color:var(--fg-3);margin-top:2px">3 itens · 28 mai 14:32</div>
+      </div>
+      <div class="total">R$ 87,40</div>
+    </div>
+    <div class="progress">
+      <div class="step done"><div class="bar"></div><div class="name">Confirmado</div></div>
+      <div class="step active"><div class="bar"></div><div class="name">Separando</div></div>
+      <div class="step"><div class="bar"></div><div class="name">Em Transporte</div></div>
+      <div class="step"><div class="bar"></div><div class="name">Entregue</div></div>
+    </div>
+  </div>
+</body></html>
