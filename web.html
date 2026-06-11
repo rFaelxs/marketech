@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketech — Painel Web</title>
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/web.css">
+  <style>
+    /* ── Page-specific additions ──────────────────────────── */
+    .web-page.active { display: flex !important; }
+
+    /* ── Product Form Modal ───────────────────────────────── */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-4); }
+    .form-grid .full { grid-column:1/-1; }
+
+    /* ── Reports ──────────────────────────────────────────── */
+    .report-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-4); margin-top:var(--sp-5); }
+    .report-card { background:var(--color-surface); border-radius:var(--r-lg); padding:var(--sp-5); box-shadow:var(--shadow-sm); }
+    .report-card-title { font-size:var(--text-sm); font-weight:700; margin-bottom:var(--sp-4); display:flex; align-items:center; justify-content:space-between; }
+    .report-top-item {
+      display:flex; align-items:center; gap:var(--sp-3);
+      padding:var(--sp-2) 0; border-bottom:1px solid var(--color-border); font-size:var(--text-sm);
+    }
+    .report-top-item:last-child { border-bottom:none; }
+    .report-top-rank { width:24px; height:24px; border-radius:var(--r-full); background:var(--color-primary); color:#fff; font-size:11px; font-weight:800; display:flex;align-items:center;justify-content:center; flex-shrink:0; }
+    .report-top-name { flex:1; }
+    .report-top-qty  { font-weight:700; color:var(--color-primary); }
+    .report-bar-item { margin-bottom:var(--sp-3); }
+    .report-bar-label { display:flex; justify-content:space-between; font-size:var(--text-xs); margin-bottom:4px; }
+    .report-bar-track { height:8px; background:var(--color-bg); border-radius:var(--r-full); overflow:hidden; }
+    .report-bar-fill  { height:100%; border-radius:var(--r-full); background:var(--color-primary); }
+
+    /* ── Users Table ──────────────────────────────────────── */
+    .user-avatar-sm {
+      width:32px; height:32px; border-radius:var(--r-full);
+      background:var(--color-primary); color:#fff; font-size:12px; font-weight:700;
+      display:flex;align-items:center;justify-content:center; flex-shrink:0;
+    }
+
+    /* ── Alert Count ──────────────────────────────────────── */
+    .topbar-alert {
+      display:flex; align-items:center; gap:var(--sp-2);
+      padding:var(--sp-2) var(--sp-4); background:var(--color-danger-bg);
+      border:1px solid rgba(220,38,38,.2); border-radius:var(--r-full);
+      font-size:var(--text-xs); font-weight:700; color:var(--color-danger); cursor:pointer;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .topbar-alert .dot { width:8px;height:8px;border-radius:50%;background:var(--color-danger);animation:blink 1.5s infinite; }
+
+    /* ── Login page override ──────────────────────────────── */
+    #web-login { min-height:100vh; }
+  </style>
+</head>
+<body data-page="web" style="overflow:hidden">
+  <div id="toast-container"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       WEB LOGIN
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="web-login" class="web-page active" style="min-height:100vh;height:100vh">
+    <div class="web-login-left">
+      <div class="web-login-brand">
+        <div class="web-login-brand-logo">🛒</div>
+        <div class="web-login-tagline">Gestão inteligente<br>para o seu mercado</div>
+        <div class="web-login-sub">Controle de estoque, pedidos em tempo real e relatórios gerenciais num só painel.</div>
+      </div>
+    </div>
+    <div class="web-login-right">
+      <div class="web-login-form">
+        <h2>Entrar no painel</h2>
+        <p>Acesse com suas credenciais de operador ou administrador</p>
+        <div class="input-group">
+          <label class="input-label">E-mail</label>
+          <input class="input-field" type="email" value="admin@marketech.com.br" id="web-email">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Senha</label>
+          <input class="input-field" type="password" value="••••••••" id="web-senha">
+        </div>
+        <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-6)">
+          <button class="btn btn-outline btn-lg" style="flex:1" onclick="loginAs('operador')">Entrar como Operador</button>
+          <button class="btn btn-primary btn-lg" style="flex:1" onclick="loginAs('admin')">Entrar como Admin</button>
+        </div>
+        <div style="margin-top:var(--sp-5);text-align:center">
+          <a href="index.html" style="font-size:13px;color:var(--color-text-secondary)">← Ver App do Cliente</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       OPERADOR — SHELL
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="web-operador" class="web-page" style="height:100vh">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">🛒</div>
+        <div>
+          <div class="sidebar-logo-text">Marketech</div>
+          <div class="sidebar-logo-role">Operador</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Menu</div>
+        <div class="sidebar-item active" data-page="op-produtos" onclick="switchOpPage('op-produtos')">
+          <span class="icon">📦</span> Produtos
+        </div>
+        <div class="sidebar-item" data-page="op-estoque" onclick="switchOpPage('op-estoque')">
+          <span class="icon">📊</span> Estoque
+        </div>
+        <div class="sidebar-item" data-page="op-pedidos" onclick="switchOpPage('op-pedidos')">
+          <span class="icon">🧾</span> Pedidos Ativos
+          <span class="badge-count">9</span>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" onclick="goToWeb('web-login')">
+          <div class="sidebar-avatar">OP</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">João Operador</div>
+            <div class="sidebar-user-role">Operador</div>
+          </div>
+          <span style="color:rgba(255,255,255,.3);font-size:14px">→</span>
+        </div>
+      </div>
+    </aside>
+    <!-- Main -->
+    <div class="web-main">
+      <div class="web-topbar">
+        <div class="web-topbar-title" id="op-page-title">Gerenciar Produtos</div>
+        <div class="web-topbar-actions">
+          <button class="btn btn-primary" onclick="document.getElementById('new-product-modal').classList.remove('hidden')">+ Novo Produto</button>
+          <button class="btn btn-ghost btn-icon" onclick="window.location.href='index.html'" title="Ver App Mobile">📱</button>
+        </div>
+      </div>
+      <div class="web-content">
+        <!-- Produtos -->
+        <div id="op-produtos" class="op-page">
+          <div class="filter-bar">
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Buscar produto ou categoria..." oninput="renderProductTable(this.value)">
+            </div>
+            <select class="filter-select">
+              <option>Todas as categorias</option>
+              <option>Básicos</option><option>Carnes</option>
+              <option>Laticínios</option><option>Padaria</option>
+              <option>Bebidas</option><option>Limpeza</option>
+            </select>
+            <select class="filter-select">
+              <option>Todos os status</option>
+              <option>Disponível</option>
+              <option>Indisponível</option>
+            </select>
+          </div>
+          <div class="data-table-wrap">
+            <div class="data-table-header">
+              <div>
+                <div class="data-table-title">Catálogo de Produtos</div>
+                <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">10 produtos • 3 indisponíveis</div>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Status</th>
+                  <th style="text-align:right">Estoque</th>
+                  <th style="text-align:right">Preço (R$)</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="products-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Estoque -->
+        <div id="op-estoque" class="op-page hidden">
+          <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-label">Produtos em estoque</div>
+                <div class="stat-card-icon" style="background:var(--color-success-bg)">📦</div>
+              </div>
+              <div class="stat-card-value">7</div>
+              <div class="stat-card-sub">de 10 ativos</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-label">Zerados</div>
+                <div class="stat-card-icon" style="background:var(--color-danger-bg)">⚠️</div>
+              </div>
+              <div class="stat-card-value" style="color:var(--color-danger)">3</div>
+              <div class="stat-card-sub">precisam de reposição</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-label">Itens totais</div>
+                <div class="stat-card-icon" style="background:var(--color-primary-10)">🔢</div>
+              </div>
+              <div class="stat-card-value">205</div>
+              <div class="stat-card-sub">unidades no total</div>
+            </div>
+          </div>
+          <div class="alert-banner danger" style="margin-top:0">
+            <span class="icon">⚠️</span>
+            3 produtos com estoque zerado: <strong style="margin-left:4px">Leite Integral, Suco Del Valle, Queijo Mussarela</strong>. Tags "Indisponível" aplicadas automaticamente.
+          </div>
+          <div class="data-table-wrap">
+            <div class="data-table-header"><div class="data-table-title">Movimentação de Estoque</div></div>
+            <table>
+              <thead><tr><th>Produto</th><th>Anterior</th><th>Movimento</th><th>Atual</th><th>Data/Hora</th><th>Responsável</th></tr></thead>
+              <tbody>
+                <tr><td><div class="product-cell"><div class="product-thumb">🌾</div><div><div class="product-name">Arroz Tio João 5kg</div></div></div></td><td>50</td><td><span class="badge badge-danger">− 5</span></td><td><strong>45</strong></td><td style="color:var(--color-text-secondary);font-size:12px">Hoje, 13:42</td><td>João Op.</td></tr>
+                <tr><td><div class="product-cell"><div class="product-thumb">🍗</div><div><div class="product-name">Peito de Frango kg</div></div></div></td><td>8</td><td><span class="badge badge-success">+ 4</span></td><td><strong>12</strong></td><td style="color:var(--color-text-secondary);font-size:12px">Hoje, 11:15</td><td>João Op.</td></tr>
+                <tr><td><div class="product-cell"><div class="product-thumb">🥛</div><div><div class="product-name">Leite Integral 1L</div></div></div></td><td>3</td><td><span class="badge badge-danger">− 3</span></td><td><strong style="color:var(--color-danger)">0 ⚠</strong></td><td style="color:var(--color-text-secondary);font-size:12px">Hoje, 09:30</td><td>João Op.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Pedidos Ativos (Operador) -->
+        <div id="op-pedidos" class="op-page hidden">
+          <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="stat-card"><div class="stat-card-header"><div class="stat-card-label">Para separar</div><div class="stat-card-icon" style="background:var(--color-warning-bg)">🔄</div></div><div class="stat-card-value">3</div></div>
+            <div class="stat-card"><div class="stat-card-header"><div class="stat-card-label">Em separação</div><div class="stat-card-icon" style="background:var(--color-primary-10)">📋</div></div><div class="stat-card-value">2</div></div>
+            <div class="stat-card"><div class="stat-card-header"><div class="stat-card-label">Prontos</div><div class="stat-card-icon" style="background:var(--color-success-bg)">✅</div></div><div class="stat-card-value">4</div></div>
+          </div>
+          <div class="data-table-wrap">
+            <div class="data-table-header"><div class="data-table-title">Fila de Separação</div></div>
+            <table>
+              <thead><tr><th>Pedido</th><th>Cliente</th><th>Itens</th><th>Valor</th><th>Status</th><th>Tempo</th></tr></thead>
+              <tbody>
+                <tr><td><strong>#4821</strong></td><td>Ana Lima</td><td>3 itens</td><td>R$ 67,40</td><td><span class="badge badge-info">Confirmado</span></td><td>3 min</td></tr>
+                <tr><td><strong>#4820</strong></td><td>Carlos Mendes</td><td>5 itens</td><td>R$ 142,90</td><td><span class="badge badge-info">Confirmado</span></td><td>7 min</td></tr>
+                <tr style="background:var(--color-danger-bg)"><td><strong>#4819</strong></td><td>Maria Santos</td><td>2 itens</td><td>R$ 38,20</td><td><span class="badge badge-warning">Em Separação</span></td><td><strong style="color:var(--color-danger)">⚠ 24 min</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       ADMIN — SHELL
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="web-admin" class="web-page" style="height:100vh">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">🛒</div>
+        <div>
+          <div class="sidebar-logo-text">Marketech</div>
+          <div class="sidebar-logo-role">Administrador</div>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Visão Geral</div>
+        <div class="sidebar-item active" data-page="adm-dashboard" onclick="switchAdmPage('adm-dashboard')">
+          <span class="icon">📊</span> Dashboard
+        </div>
+        <div class="sidebar-section-label" style="margin-top:var(--sp-4)">Operações</div>
+        <div class="sidebar-item" data-page="adm-pedidos" onclick="switchAdmPage('adm-pedidos')">
+          <span class="icon">🗂️</span> Pedidos
+          <span class="badge-count">2</span>
+        </div>
+        <div class="sidebar-item" data-page="adm-relatorios" onclick="switchAdmPage('adm-relatorios')">
+          <span class="icon">📈</span> Relatórios
+        </div>
+        <div class="sidebar-section-label" style="margin-top:var(--sp-4)">Configurações</div>
+        <div class="sidebar-item" data-page="adm-usuarios" onclick="switchAdmPage('adm-usuarios')">
+          <span class="icon">👥</span> Usuários
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user" onclick="goToWeb('web-login')">
+          <div class="sidebar-avatar">AD</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">Admin Geral</div>
+            <div class="sidebar-user-role">Administrador</div>
+          </div>
+          <span style="color:rgba(255,255,255,.3);font-size:14px">→</span>
+        </div>
+      </div>
+    </aside>
+    <div class="web-main">
+      <div class="web-topbar">
+        <div class="web-topbar-title" id="adm-page-title">Dashboard</div>
+        <div class="web-topbar-actions">
+          <div class="topbar-alert" onclick="switchAdmPage('adm-pedidos')">
+            <span class="dot"></span>
+            2 pedidos em alerta
+          </div>
+          <button class="btn btn-ghost btn-icon" onclick="window.location.href='index.html'" title="Ver App Mobile">📱</button>
+        </div>
+      </div>
+      <div class="web-content">
+
+        <!-- ── Dashboard ──────────────────────────────────── -->
+        <div id="adm-dashboard" class="adm-page">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-label">Vendas Hoje</div>
+                <div class="stat-card-icon" style="background:var(--color-success-bg);color:var(--color-success)">💰</div>
+              </div>
+              <div class="stat-card-value">R$ 9.400</div>
+              <div class="stat-card-sub"><span class="stat-card-delta up">↑ 14%</span> vs ontem</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-label">Pedidos Hoje</div>
+                <div class="stat-card-icon" style="background:var(--color-info-bg);color:var(--color-info)">🧾</div>
+              </div>
+              <div class="stat-card-value">47</div>
+              <div class="stat-card-sub"><span class="stat-card-delta up">↑ 8%</span> vs ontem</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-label">Ticket Médio</div>
+                <div class="stat-card-icon" style="background:var(--color-warning-bg);color:var(--color-warning)">📊</div>
+              </div>
+              <div class="stat-card-value">R$ 200</div>
+              <div class="stat-card-sub"><span class="stat-card-delta down">↓ 3%</span> vs ontem</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <div class="stat-card-label">Clientes Ativos</div>
+                <div class="stat-card-icon" style="background:var(--color-primary-10);color:var(--color-primary)">👥</div>
+              </div>
+              <div class="stat-card-value">1.284</div>
+              <div class="stat-card-sub"><span class="stat-card-delta up">↑ 31</span> esta semana</div>
+            </div>
+          </div>
+          <div class="data-table-wrap" style="margin-bottom:var(--sp-5)">
+            <div class="data-table-header">
+              <div>
+                <div class="data-table-title">Vendas — últimos 7 dias</div>
+              </div>
+            </div>
+            <div style="padding:var(--sp-5)">
+              <div id="sales-chart"></div>
+            </div>
+          </div>
+          <div class="alert-banner danger">
+            <span class="icon">⚠️</span>
+            <div>
+              <strong>2 pedidos em alerta de SLA!</strong>
+              Pedidos #4819 e #4817 estão na etapa "Em Separação" há mais de 20 minutos.
+              <a onclick="switchAdmPage('adm-pedidos')" style="color:var(--color-danger);font-weight:700;cursor:pointer;margin-left:4px">Ver Kanban →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Pedidos Kanban ─────────────────────────────── -->
+        <div id="adm-pedidos" class="adm-page hidden">
+          <div class="alert-banner danger">
+            <span class="icon">🔴</span>
+            <strong>Alerta automático:</strong> pedidos destacados em vermelho estão em "Em Separação" há mais de 20 min. Intervenção necessária.
+          </div>
+          <div class="kanban-board">
+            <div class="kanban-col">
+              <div class="kanban-col-header confirmado">
+                <span>Confirmados</span>
+                <span class="kanban-col-count" id="kanban-confirmado-count">0</span>
+              </div>
+              <div class="kanban-cards" id="kanban-confirmado"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-header separacao">
+                <span>Em Separação</span>
+                <span class="kanban-col-count" id="kanban-separacao-count">0</span>
+              </div>
+              <div class="kanban-cards" id="kanban-separacao"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-header transporte">
+                <span>Em Transporte</span>
+                <span class="kanban-col-count" id="kanban-transporte-count">0</span>
+              </div>
+              <div class="kanban-cards" id="kanban-transporte"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-header entregue">
+                <span>Entregues</span>
+                <span class="kanban-col-count" id="kanban-entregue-count">0</span>
+              </div>
+              <div class="kanban-cards" id="kanban-entregue"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Relatórios ─────────────────────────────────── -->
+        <div id="adm-relatorios" class="adm-page hidden">
+          <div class="data-table-wrap" style="margin-bottom:var(--sp-5)">
+            <div class="data-table-header">
+              <div class="data-table-title">Vendas por Dia — Esta Semana</div>
+              <div class="data-table-actions">
+                <select class="filter-select">
+                  <option>Esta semana</option><option>Este mês</option><option>Este ano</option>
+                </select>
+              </div>
+            </div>
+            <div style="padding:var(--sp-5)">
+              <div id="sales-chart"></div>
+            </div>
+          </div>
+          <div class="report-grid">
+            <div class="report-card">
+              <div class="report-card-title">
+                🏆 Produtos Mais Vendidos
+                <span class="badge badge-neutral">Top 5</span>
+              </div>
+              <div class="report-top-item"><div class="report-top-rank">1</div><span class="report-top-item-emoji" style="font-size:18px;flex-shrink:0">🌾</span><span class="report-top-name">Arroz Tio João 5kg</span><span class="report-top-qty">142 un</span></div>
+              <div class="report-top-item"><div class="report-top-rank">2</div><span style="font-size:18px;flex-shrink:0">🍗</span><span class="report-top-name">Peito de Frango kg</span><span class="report-top-qty">98 un</span></div>
+              <div class="report-top-item"><div class="report-top-rank">3</div><span style="font-size:18px;flex-shrink:0">🫘</span><span class="report-top-name">Feijão Carioca 1kg</span><span class="report-top-qty">87 un</span></div>
+              <div class="report-top-item"><div class="report-top-rank">4</div><span style="font-size:18px;flex-shrink:0">🍞</span><span class="report-top-name">Pão de Forma Wickbold</span><span class="report-top-qty">74 un</span></div>
+              <div class="report-top-item"><div class="report-top-rank">5</div><span style="font-size:18px;flex-shrink:0">🧴</span><span class="report-top-name">Detergente Ypê 500ml</span><span class="report-top-qty">61 un</span></div>
+            </div>
+            <div class="report-card">
+              <div class="report-card-title">📦 Vendas por Categoria</div>
+              <div class="report-bar-item"><div class="report-bar-label"><span>Básicos</span><span>38%</span></div><div class="report-bar-track"><div class="report-bar-fill" style="width:38%"></div></div></div>
+              <div class="report-bar-item"><div class="report-bar-label"><span>Carnes</span><span>24%</span></div><div class="report-bar-track"><div class="report-bar-fill" style="width:24%"></div></div></div>
+              <div class="report-bar-item"><div class="report-bar-label"><span>Laticínios</span><span>18%</span></div><div class="report-bar-track"><div class="report-bar-fill" style="width:18%"></div></div></div>
+              <div class="report-bar-item"><div class="report-bar-label"><span>Bebidas</span><span>12%</span></div><div class="report-bar-track"><div class="report-bar-fill" style="width:12%"></div></div></div>
+              <div class="report-bar-item"><div class="report-bar-label"><span>Outros</span><span>8%</span></div><div class="report-bar-track"><div class="report-bar-fill" style="width:8%"></div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Usuários ────────────────────────────────────── -->
+        <div id="adm-usuarios" class="adm-page hidden">
+          <div class="filter-bar">
+            <div class="search-input-wrap">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Buscar usuário...">
+            </div>
+            <select class="filter-select">
+              <option>Todos os perfis</option>
+              <option>Cliente</option><option>Operador</option><option>Administrador</option>
+            </select>
+            <button class="btn btn-primary" onclick="showToast('Formulário de novo usuário', 'default')">+ Novo Usuário</button>
+          </div>
+          <div class="data-table-wrap">
+            <div class="data-table-header">
+              <div><div class="data-table-title">Usuários do Sistema</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">CPF sempre mascarado — conformidade LGPD</div></div>
+            </div>
+            <table>
+              <thead><tr><th>Usuário</th><th>CPF</th><th>Perfil</th><th>Status</th><th>Último Acesso</th><th>Ações</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><div class="product-cell"><div class="user-avatar-sm">RS</div><div><div class="product-name">Rafael Siqueira</div><div class="product-cat">rafael@email.com</div></div></div></td>
+                  <td style="font-family:monospace;font-size:12px;color:var(--color-text-secondary)">***.456.789-**</td>
+                  <td><span class="badge badge-info">Cliente</span></td>
+                  <td><span class="badge badge-success">● Ativo</span></td>
+                  <td style="font-size:12px;color:var(--color-text-secondary)">Hoje, 14:02</td>
+                  <td><button class="btn btn-sm btn-outline">Editar</button></td>
+                </tr>
+                <tr>
+                  <td><div class="product-cell"><div class="user-avatar-sm" style="background:#6366F1">JO</div><div><div class="product-name">João Operador</div><div class="product-cat">joao@marketech.com.br</div></div></div></td>
+                  <td style="font-family:monospace;font-size:12px;color:var(--color-text-secondary)">***.123.456-**</td>
+                  <td><span class="badge badge-warning">Operador</span></td>
+                  <td><span class="badge badge-success">● Ativo</span></td>
+                  <td style="font-size:12px;color:var(--color-text-secondary)">Hoje, 09:00</td>
+                  <td><button class="btn btn-sm btn-outline">Editar</button></td>
+                </tr>
+                <tr>
+                  <td><div class="product-cell"><div class="user-avatar-sm" style="background:#DC2626">AD</div><div><div class="product-name">Admin Geral</div><div class="product-cat">admin@marketech.com.br</div></div></div></td>
+                  <td style="font-family:monospace;font-size:12px;color:var(--color-text-secondary)">***.999.000-**</td>
+                  <td><span class="badge badge-danger">Administrador</span></td>
+                  <td><span class="badge badge-success">● Ativo</span></td>
+                  <td style="font-size:12px;color:var(--color-text-secondary)">Hoje, 13:55</td>
+                  <td><button class="btn btn-sm btn-outline" disabled>Protegido</button></td>
+                </tr>
+                <tr>
+                  <td><div class="product-cell"><div class="user-avatar-sm" style="background:#9CA3AF">AL</div><div><div class="product-name">Ana Lima</div><div class="product-cat">ana@email.com</div></div></div></td>
+                  <td style="font-family:monospace;font-size:12px;color:var(--color-text-secondary)">***.234.567-**</td>
+                  <td><span class="badge badge-info">Cliente</span></td>
+                  <td><span class="badge badge-neutral">● Inativo</span></td>
+                  <td style="font-size:12px;color:var(--color-text-secondary)">Ontem, 18:32</td>
+                  <td><button class="btn btn-sm btn-outline">Editar</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /web-content -->
+    </div><!-- /web-main -->
+  </div><!-- /web-admin -->
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL — Detalhes do Pedido
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="order-modal" class="modal-backdrop hidden" onclick="if(event.target===this)closeOrderModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Detalhes do Pedido <span id="modal-order-id"></span></div>
+        <div class="modal-close" onclick="closeOrderModal()">✕</div>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-4);margin-bottom:var(--sp-5)">
+          <div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:4px">Cliente</div>
+            <div style="font-weight:700" id="modal-order-name"></div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:4px">Valor</div>
+            <div style="font-weight:700;color:var(--color-primary)" id="modal-order-value"></div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:4px">Status</div>
+            <div id="modal-order-status" style="font-weight:600"></div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:4px">Tempo nesta etapa</div>
+            <div style="font-weight:600;color:var(--color-danger)" id="modal-order-time"></div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Itens</div>
+        <div id="modal-order-items" style="font-size:13px;background:var(--color-bg);padding:var(--sp-4);border-radius:var(--r-md)"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeOrderModal()">Fechar</button>
+        <button class="btn btn-danger" onclick="showToast('Pedido cancelado — estorno iniciado', 'error');closeOrderModal()">Cancelar Pedido</button>
+        <button class="btn btn-primary" onclick="showToast('Status atualizado ✓', 'success');closeOrderModal()">Avançar Status →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL — Novo Produto
+  ═══════════════════════════════════════════════════════════ -->
+  <div id="new-product-modal" class="modal-backdrop hidden" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Cadastrar Novo Produto</div>
+        <div class="modal-close" onclick="document.getElementById('new-product-modal').classList.add('hidden')">✕</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="input-group full">
+            <label class="input-label">Nome do produto</label>
+            <input class="input-field" type="text" placeholder="Ex: Leite Integral 1L" id="np-nome">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Preço (R$)</label>
+            <input class="input-field" type="number" placeholder="0,00" min="0" step="0.01" id="np-preco">
+            <span class="input-hint">Não pode ser negativo</span>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Estoque inicial</label>
+            <input class="input-field" type="number" placeholder="0" min="0" id="np-estoque">
+            <span class="input-hint">Não pode ser negativo</span>
+          </div>
+          <div class="input-group full">
+            <label class="input-label">Categoria</label>
+            <select class="input-field">
+              <option value="">Selecione...</option>
+              <option>Básicos</option><option>Carnes</option>
+              <option>Laticínios</option><option>Padaria</option>
+              <option>Bebidas</option><option>Limpeza</option>
+            </select>
+          </div>
+          <div class="input-group full">
+            <label class="input-label">Descrição</label>
+            <input class="input-field" type="text" placeholder="Descrição breve do produto">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="document.getElementById('new-product-modal').classList.add('hidden')">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveNewProduct()">Salvar Produto</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    function loginAs(role) {
+      showToast('Autenticando...', 'default', 800);
+      setTimeout(() => {
+        goToWeb('web-login');
+        document.getElementById('web-login').classList.remove('active');
+        if (role === 'admin') {
+          document.getElementById('web-admin').classList.add('active');
+          document.getElementById('web-admin').style.display = 'flex';
+          renderKanban();
+          renderReports();
+          showToast('Bem-vindo, Admin! 👋', 'success');
+        } else {
+          document.getElementById('web-operador').classList.add('active');
+          document.getElementById('web-operador').style.display = 'flex';
+          renderProductTable();
+          showToast('Bem-vindo, Operador! 👋', 'success');
+        }
+      }, 900);
+    }
+
+    function goToWeb(pageId) {
+      document.querySelectorAll('.web-page').forEach(p => {
+        p.classList.remove('active');
+        p.style.display = 'none';
+      });
+      const page = document.getElementById(pageId);
+      if (page) {
+        page.classList.add('active');
+        page.style.display = 'flex';
+      }
+    }
+
+    function switchOpPage(pageId) {
+      document.querySelectorAll('.op-page').forEach(p => p.classList.add('hidden'));
+      document.getElementById(pageId)?.classList.remove('hidden');
+      document.querySelectorAll('#web-operador .sidebar-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === pageId);
+      });
+      const titles = { 'op-produtos':'Gerenciar Produtos', 'op-estoque':'Controle de Estoque', 'op-pedidos':'Pedidos Ativos' };
+      document.getElementById('op-page-title').textContent = titles[pageId] || '';
+    }
+
+    function switchAdmPage(pageId) {
+      document.querySelectorAll('.adm-page').forEach(p => p.classList.add('hidden'));
+      document.getElementById(pageId)?.classList.remove('hidden');
+      document.querySelectorAll('#web-admin .sidebar-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === pageId);
+      });
+      const titles = { 'adm-dashboard':'Dashboard', 'adm-pedidos':'Monitoramento de Pedidos', 'adm-relatorios':'Relatórios', 'adm-usuarios':'Gerenciar Usuários' };
+      document.getElementById('adm-page-title').textContent = titles[pageId] || '';
+      if (pageId === 'adm-relatorios') renderReports();
+    }
+
+    function saveNewProduct() {
+      const nome = document.getElementById('np-nome').value;
+      const preco = parseFloat(document.getElementById('np-preco').value);
+      const estoque = parseInt(document.getElementById('np-estoque').value);
+      if (!nome) { showToast('Informe o nome do produto', 'error'); return; }
+      if (preco < 0 || isNaN(preco)) { showToast('Preço inválido', 'error'); return; }
+      if (estoque < 0 || isNaN(estoque)) { showToast('Estoque não pode ser negativo', 'error'); return; }
+      MOCK.products.push({ id: Date.now(), nome, preco, estoque, cat:'Geral', emoji:'🏷️', disponivel: estoque > 0 });
+      document.getElementById('new-product-modal').classList.add('hidden');
+      renderProductTable();
+      showToast(`${nome} cadastrado com sucesso ✓`, 'success');
+    }
+  </script>
+</body>
+</html>
