@@ -105,9 +105,9 @@ const QUEUE_ORDERS = [
 ];
 
 const USERS = [
-  { id: 'u1', name: 'Maria Oliveira', email: 'cliente@test.com', role: 'cliente', joined: '12 mar 2025', orders: 18, active: true },
-  { id: 'u2', name: 'João Silva',     email: 'joao@cliente.br',  role: 'cliente', joined: '02 abr 2025', orders: 7,  active: true },
-  { id: 'u3', name: 'Ana Souza',      email: 'ana@cliente.br',   role: 'cliente', joined: '17 abr 2025', orders: 3,  active: true },
+  { id: 'u1', name: 'Maria Oliveira', email: 'cliente@test.com', role: 'cliente', joined: '12 mar 2025', orders: 18, active: true, cpf: '123.456.789-00' },
+  { id: 'u2', name: 'João Silva',     email: 'joao@cliente.br',  role: 'cliente', joined: '02 abr 2025', orders: 7,  active: true, cpf: '987.654.321-11' },
+  { id: 'u3', name: 'Ana Souza',      email: 'ana@cliente.br',   role: 'cliente', joined: '17 abr 2025', orders: 3,  active: true, cpf: '456.789.123-22' },
   { id: 'u4', name: 'Carlos Operador', email: 'operador@test.com', role: 'operador', joined: '08 jan 2025', orders: 0, active: true, perms: ['estoque','fila'] },
   { id: 'u5', name: 'Beatriz Lima',    email: 'beatriz.op@marketech.com.br', role: 'operador', joined: '21 fev 2025', orders: 0, active: true, perms: ['fila'] },
   { id: 'u6', name: 'Admin Geral',     email: 'admin@test.com', role: 'admin', joined: '01 jan 2025', orders: 0, active: true, perms: ['todas'] },

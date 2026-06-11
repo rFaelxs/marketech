@@ -12,7 +12,7 @@
   const state = {
     user: null,                 // {email, role}
     role: null,                 // 'cliente' | 'operador' | 'admin'
-    screen: 'login',
+    screen: 'onboarding',
     cart: [],                   // [{productId, qty}]
     coupon: null,               // 'PROMO10' | null
     selectedProductId: null,
@@ -27,6 +27,8 @@
     confirmedOrder: null,
     roleMenuOpen: false,
     modal: null,                // { type, payload }
+    onboardingSlide: 0,
+    recoveryEmailSent: false,
   };
 
   // -----------------------------------------------------------
@@ -42,6 +44,13 @@
   const cartDiscount = () => state.coupon === 'PROMO10' ? cartSubtotal() * 0.10 : 0;
   const deliveryFee = () => state.deliveryMode === 'delivery' ? 8.90 : 0;
   const cartTotal = () => cartSubtotal() - cartDiscount() + deliveryFee();
+
+  function maskCpf(cpf) {
+    if (!cpf) return '***.***.***-**';
+    const d = cpf.replace(/\D/g, '');
+    if (d.length !== 11) return cpf;
+    return `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**`;
+  }
 
   function icon(name, size = 18) {
     return `<i data-lucide="${name}" style="width:${size}px;height:${size}px;flex-shrink:0"></i>`;
@@ -88,8 +97,9 @@
   // -----------------------------------------------------------
   function render() {
     const root = $('#app');
-    if (state.screen === 'login') {
-      root.innerHTML = renderLogin();
+    const preAuth = { login: renderLogin, onboarding: renderOnboarding, signup: renderSignup, 'password-recovery': renderPasswordRecovery };
+    if (preAuth[state.screen]) {
+      root.innerHTML = preAuth[state.screen]();
     } else {
       root.innerHTML = renderShell(renderCurrentScreen());
     }
@@ -102,7 +112,7 @@
       catalog: renderCatalog, product: renderProductDetail, cart: renderCart,
       checkout: renderCheckout, confirmation: renderConfirmation, orders: renderOrders,
       products: renderProductsPanel, queue: renderQueue,
-      users: renderUsers, dashboard: renderDashboard,
+      users: renderUsers, dashboard: renderDashboard, profile: renderProfile,
     };
     const fn = map[state.screen] || (() => '<div>Tela não encontrada</div>');
     return `<div class="screen-mount" key="${state.screen}">${fn()}</div>`;
@@ -158,6 +168,189 @@
   }
 
   // -----------------------------------------------------------
+  // ONBOARDING
+  // -----------------------------------------------------------
+  function renderOnboarding() {
+    const slides = [
+      { icon: 'shopping-bag',   title: 'Compras sem fricção',    desc: 'Catálogo completo, carrinho e Pix em menos de 3 minutos. Sem app para baixar.', bg: 'var(--primary-50)', color: 'var(--primary-500)' },
+      { icon: 'truck',          title: 'Entrega em 60 minutos',  desc: 'Em casa ou retirada na loja. Acompanhe o status do seu pedido em tempo real.',   bg: 'var(--green-50)',   color: 'var(--green-500)'   },
+      { icon: 'badge-percent',  title: 'Ofertas exclusivas',     desc: 'Cupons e promoções para membros. Use PROMO10 no seu primeiro pedido.',            bg: 'var(--amber-50)',   color: 'var(--amber-600)'   },
+    ];
+    const s = slides[state.onboardingSlide];
+    const isLast = state.onboardingSlide === slides.length - 1;
+    return `
+      <div class="onboarding-shell">
+        <div class="onboarding-topbar">
+          <img src="assets/logo.svg" alt="Marketech" height="28">
+          <button class="btn btn-ghost btn-sm" data-action="onboarding-skip">Pular</button>
+        </div>
+        <div class="onboarding-body">
+          <div class="onboarding-icon" style="background:${s.bg};color:${s.color}">
+            ${icon(s.icon, 48)}
+          </div>
+          <h2 class="onboarding-title">${esc(s.title)}</h2>
+          <p class="onboarding-desc">${esc(s.desc)}</p>
+        </div>
+        <div class="onboarding-footer">
+          <div class="slide-dots">
+            ${slides.map((_, i) => `<div class="dot ${i === state.onboardingSlide ? 'active' : ''}"></div>`).join('')}
+          </div>
+          <button class="btn btn-primary" style="width:100%;max-width:320px;height:48px;font-size:16px" data-action="${isLast ? 'onboarding-goto-signup' : 'onboarding-next'}">
+            ${isLast ? `Criar Conta ${icon('arrow-right', 16)}` : `Próximo ${icon('arrow-right', 16)}`}
+          </button>
+          <div style="margin-top:14px;font-size:14px;color:var(--fg-2)">
+            Já tem conta? <a href="#" data-action="onboarding-skip">Entrar</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // -----------------------------------------------------------
+  // SIGNUP
+  // -----------------------------------------------------------
+  function renderSignup() {
+    return `
+      <div class="login-shell">
+        <div class="login-hero">
+          <img src="assets/logo-white.svg" width="180" alt="Marketech">
+          <div>
+            <h1>Crie sua conta.</h1>
+            <p>Acesse o melhor mercado online da sua região. Rápido, sem burocracia.</p>
+          </div>
+          <div style="font-size:12px;color:rgb(255 255 255 / 0.6)">© 2026 Marketech · v1.0</div>
+        </div>
+        <div class="login-form-wrap">
+          <form class="login-form" data-action="submit-signup" onsubmit="return false;">
+            <h2>Criar Conta</h2>
+            <div class="sub">Preencha seus dados para começar.</div>
+            <div class="field">
+              <label class="field-label">Nome completo</label>
+              <input class="input" type="text" name="name" placeholder="Seu nome completo" required>
+            </div>
+            <div class="field">
+              <label class="field-label">E-mail</label>
+              <input class="input" type="email" name="email" placeholder="seu@email.com" required>
+            </div>
+            <div class="field">
+              <label class="field-label">CPF</label>
+              <input class="input" type="text" name="cpf" placeholder="000.000.000-00" maxlength="14" data-action="cpf-input" required>
+            </div>
+            <div class="field">
+              <label class="field-label">Senha</label>
+              <input class="input" type="password" name="password" placeholder="Mínimo 6 caracteres" minlength="6" required>
+            </div>
+            <div class="field">
+              <label class="field-label">Confirmar senha</label>
+              <input class="input" type="password" name="confirm" placeholder="Repita a senha" required>
+              <div class="err" id="signup-err" style="display:none"></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" style="height:44px">Criar Conta</button>
+            <div style="text-align:center;margin-top:16px;font-size:14px;color:var(--fg-2)">
+              Já tem conta? <a href="#" data-action="back-to-login">Entrar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  // -----------------------------------------------------------
+  // PASSWORD RECOVERY
+  // -----------------------------------------------------------
+  function renderPasswordRecovery() {
+    return `
+      <div class="login-shell">
+        <div class="login-hero">
+          <img src="assets/logo-white.svg" width="180" alt="Marketech">
+          <div>
+            <h1>Recuperar acesso.</h1>
+            <p>Enviaremos um link de redefinição para o seu e-mail cadastrado.</p>
+          </div>
+          <div style="font-size:12px;color:rgb(255 255 255 / 0.6)">© 2026 Marketech · v1.0</div>
+        </div>
+        <div class="login-form-wrap">
+          <form class="login-form" data-action="submit-recovery" onsubmit="return false;">
+            <h2>Esqueci a senha</h2>
+            <div class="sub">Informe o e-mail da sua conta.</div>
+            ${state.recoveryEmailSent ? `
+              <div class="recovery-success">
+                ${icon('check-circle-2', 20)}
+                <div>
+                  <div style="font-weight:600">E-mail enviado!</div>
+                  <div style="font-size:13px;margin-top:2px">Se este endereço estiver cadastrado, você receberá as instruções em breve.</div>
+                </div>
+              </div>
+            ` : `
+              <div class="field">
+                <label class="field-label">E-mail</label>
+                <input class="input" type="email" name="email" placeholder="seu@email.com" required>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block" style="height:44px">Enviar link de recuperação</button>
+            `}
+            <div style="text-align:center;margin-top:20px;font-size:14px">
+              <a href="#" data-action="back-to-login" style="display:inline-flex;align-items:center;gap:4px;color:var(--fg-2)">
+                ${icon('arrow-left', 14)} Voltar ao login
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  // -----------------------------------------------------------
+  // PROFILE (cliente)
+  // -----------------------------------------------------------
+  function renderProfile() {
+    const u = state.user;
+    const userData = state.users.find(x => x.email === u?.email);
+    const cpf = userData?.cpf || u?.cpf || '000.000.000-00';
+    const addresses = [
+      { label: 'Casa',     street: 'Rua das Palmeiras, 240', complement: 'Apto 51',  neighborhood: 'Vila Mariana', city: 'São Paulo / SP', cep: '04567-000' },
+      { label: 'Trabalho', street: 'Av. Paulista, 1100',     complement: 'Sala 203', neighborhood: 'Bela Vista',   city: 'São Paulo / SP', cep: '01310-100' },
+    ];
+    return `
+      <div class="profile-page">
+        <div class="profile-avatar-block">
+          <div class="profile-avatar">${(u?.name || '?').charAt(0).toUpperCase()}</div>
+          <div>
+            <div class="profile-name">${esc(u?.name || 'Usuário')}</div>
+            <div class="profile-email">${esc(u?.email || '')}</div>
+          </div>
+        </div>
+        <div class="profile-section">
+          <h4>Dados pessoais</h4>
+          <div class="profile-field"><span class="label">Nome</span><span class="value">${esc(u?.name || '')}</span></div>
+          <div class="profile-field"><span class="label">E-mail</span><span class="value">${esc(u?.email || '')}</span></div>
+          <div class="profile-field"><span class="label">CPF</span><span class="value mono">${esc(maskCpf(cpf))}</span></div>
+        </div>
+        <div class="profile-section">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h4 style="margin:0">Endereços</h4>
+            <button class="btn btn-secondary btn-sm" data-action="add-address">${icon('plus', 14)} Adicionar</button>
+          </div>
+          ${addresses.map(a => `
+            <div class="address-card">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;color:var(--fg-2)">
+                ${icon('map-pin', 14)}
+                <span style="font-weight:600;font-size:13px;color:var(--fg-1)">${esc(a.label)}</span>
+              </div>
+              <div style="font-size:14px;color:var(--fg-1)">${esc(a.street)}${a.complement ? ', ' + esc(a.complement) : ''}</div>
+              <div style="font-size:12px;color:var(--fg-2);margin-top:2px">${esc(a.neighborhood)} · ${esc(a.city)} · CEP ${esc(a.cep)}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="profile-section">
+          <button class="btn btn-secondary btn-block" data-action="logout" style="height:44px;color:var(--red-600);border-color:var(--red-100)">
+            ${icon('log-out', 16)} Sair da conta
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // -----------------------------------------------------------
   // SHELL (sidebar + topbar)
   // -----------------------------------------------------------
   function renderShell(inner) {
@@ -166,7 +359,7 @@
       catalog: 'Catálogo', product: 'Detalhe do Produto', cart: 'Carrinho',
       checkout: 'Checkout', confirmation: 'Pedido Confirmado', orders: 'Meus Pedidos',
       products: 'Painel de Produtos', queue: 'Fila de Pedidos',
-      users: 'Gerenciar Usuários', dashboard: 'Dashboard',
+      users: 'Gerenciar Usuários', dashboard: 'Dashboard', profile: 'Meu Perfil',
     };
     const u = state.user;
     const initial = (u?.name || u?.email || '?').slice(0, 1).toUpperCase();
@@ -235,9 +428,10 @@
 
   function navForRole(role) {
     if (role === 'cliente') return [
-      { screen: 'catalog', label: 'Catálogo', icon: 'layout-grid' },
-      { screen: 'cart',    label: 'Carrinho', icon: 'shopping-cart' },
-      { screen: 'orders',  label: 'Meus Pedidos', icon: 'package' },
+      { screen: 'catalog', label: 'Catálogo',    icon: 'layout-grid'   },
+      { screen: 'cart',    label: 'Carrinho',     icon: 'shopping-cart' },
+      { screen: 'orders',  label: 'Meus Pedidos', icon: 'package'       },
+      { screen: 'profile', label: 'Meu Perfil',   icon: 'user-circle-2' },
     ];
     if (role === 'operador') return [
       { screen: 'queue',    label: 'Fila de Pedidos', icon: 'clipboard-list' },
@@ -674,15 +868,16 @@
                 <div class="count">${items.length}</div>
               </div>
               ${items.length === 0 ? `<div style="padding:24px 12px;text-align:center;color:var(--fg-3);font-size:12px">Sem pedidos</div>` : items.map(o => `
-                <div class="kanban-card ${o.late ? 'late' : ''}">
+                <div class="kanban-card ${o.intervened ? 'intervened' : o.late ? 'late' : ''}">
                   <div class="row1">
                     <span class="id">#${esc(o.id)}</span>
-                    <span class="time">${o.late ? `⚠ ${o.minutesAgo} min` : `${o.minutesAgo} min`}</span>
+                    <span class="time">${o.intervened ? '✓ Intervido' : o.late ? `⚠ ${o.minutesAgo} min` : `${o.minutesAgo} min`}</span>
                   </div>
                   <div class="customer">${esc(o.customer)}</div>
                   <div class="items">${o.items} ${o.items === 1 ? 'item' : 'itens'} · ${money(o.total)}</div>
                   <div class="actions">
                     <button class="btn btn-secondary" data-action="print-comanda" data-id="${esc(o.id)}">${icon('printer', 14)} Imprimir</button>
+                    ${o.late && !o.intervened ? `<button class="btn btn-danger" data-action="intervene-order" data-id="${esc(o.id)}">${icon('alert-triangle', 13)} Intervir</button>` : ''}
                     ${col.id !== 'pronto' ? `<button class="btn btn-primary" data-action="advance-order" data-id="${esc(o.id)}">${col.id === 'aguardando' ? 'Iniciar' : 'Pronto'}</button>` : `<button class="btn btn-primary" data-action="dispatch-order" data-id="${esc(o.id)}">Despachar</button>`}
                   </div>
                 </div>
@@ -816,8 +1011,80 @@
           MARKETECH — COMANDA<br>#${esc(o.id)} · ${esc(o.customer)}<br>${o.minutesAgo} min · ${money(o.total)}<br>--------------------<br>${o.items} itens p/ separar
         </div>
         <div class="modal-actions"><button class="btn btn-primary" data-action="close-modal">Comanda impressa</button></div>`;
+    } else if (type === 'new-product') {
+      html = `
+        <h3>${icon('package-plus', 18)} Cadastrar Produto</h3>
+        <p class="sub">Novo item criado com estoque 0 (inativo) por padrão.</p>
+        <div class="err" id="np-err" style="display:none;margin-bottom:12px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="field" style="grid-column:1/-1">
+            <label class="field-label">Nome do produto *</label>
+            <input class="input" id="np-name" placeholder="ex: Arroz Branco Tipo 1">
+          </div>
+          <div class="field">
+            <label class="field-label">EAN</label>
+            <input class="input" id="np-ean" maxlength="13" placeholder="7891000…">
+          </div>
+          <div class="field">
+            <label class="field-label">Categoria *</label>
+            <select class="input" id="np-cat">
+              ${CATEGORIES.map(c => `<option>${esc(c)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label">Tamanho / Unidade</label>
+            <input class="input" id="np-size" placeholder="ex: 500 g, un., kg">
+          </div>
+          <div class="field">
+            <label class="field-label">Preço (R$) *</label>
+            <input class="input" type="number" step="0.01" min="0.01" id="np-price" placeholder="0,00">
+          </div>
+        </div>
+        <div class="modal-actions"><button class="btn btn-secondary" data-action="close-modal">Cancelar</button><button class="btn btn-primary" data-action="save-new-product">Cadastrar</button></div>`;
+    } else if (type === 'new-operator') {
+      html = `
+        <h3>${icon('user-plus', 18)} Cadastrar Operador</h3>
+        <p class="sub">O operador acessa as áreas conforme as permissões definidas abaixo.</p>
+        <div class="err" id="no-err" style="display:none;margin-bottom:12px"></div>
+        <div class="field">
+          <label class="field-label">Nome completo *</label>
+          <input class="input" id="no-name" placeholder="Nome do operador">
+        </div>
+        <div class="field">
+          <label class="field-label">E-mail *</label>
+          <input class="input" type="email" id="no-email" placeholder="operador@empresa.com">
+        </div>
+        <div class="field">
+          <label class="field-label" style="margin-bottom:10px">Permissões</label>
+          <div style="display:flex;gap:20px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+              <input type="checkbox" id="no-perm-estoque" checked style="accent-color:var(--primary-500);width:16px;height:16px"> Painel de Produtos
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+              <input type="checkbox" id="no-perm-fila" checked style="accent-color:var(--primary-500);width:16px;height:16px"> Fila de Pedidos
+            </label>
+          </div>
+        </div>
+        <div class="modal-actions"><button class="btn btn-secondary" data-action="close-modal">Cancelar</button><button class="btn btn-primary" data-action="save-new-operator">Cadastrar</button></div>`;
+    } else if (type === 'intervene-order') {
+      const o = state.queue.find(x => x.id === payload.id);
+      html = `
+        <h3>${icon('alert-triangle', 18)} Intervir no Pedido</h3>
+        <div style="background:var(--red-50);border:1px solid var(--red-100);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px">
+          <div style="color:var(--red-600);flex-shrink:0;margin-top:2px">${icon('clock', 16)}</div>
+          <div>
+            <div style="font-weight:700;color:var(--red-700);margin-bottom:3px">Pedido em atraso — ${o.minutesAgo} min</div>
+            <div style="font-size:13px"><span class="mono">#${esc(o.id)}</span> · ${esc(o.customer)} · ${o.items} ${o.items === 1 ? 'item' : 'itens'} · ${money(o.total)}</div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Justificativa *</label>
+          <textarea class="textarea" id="modal-intervention-text" rows="4" placeholder="Descreva o motivo da intervenção e as ações tomadas…"></textarea>
+        </div>
+        <div class="err" id="iv-err" style="display:none;margin-top:8px"></div>
+        <div class="modal-actions"><button class="btn btn-secondary" data-action="close-modal">Cancelar</button><button class="btn btn-danger" data-action="save-intervention" data-id="${esc(o.id)}">Registrar Intervenção</button></div>`;
     }
-    root.innerHTML = `<div class="modal-backdrop" data-action="close-modal-bg"><div class="modal" onclick="event.stopPropagation()">${html}</div></div>`;
+    root.innerHTML = `<div class="modal-backdrop" data-action="close-modal-bg"><div class="modal">${html}</div></div>`;
     refreshIcons();
   }
 
@@ -834,7 +1101,8 @@
     const id = t.dataset.id;
 
     if (a === 'submit-login') return;
-    if (a === 'forgot' || a === 'signup') { e.preventDefault(); toast('Funcionalidade não implementada no protótipo.', { type: 'info' }); return; }
+    if (a === 'forgot') { e.preventDefault(); state.screen = 'password-recovery'; render(); return; }
+    if (a === 'signup') { e.preventDefault(); state.screen = 'signup'; render(); return; }
 
     if (a === 'nav') { e.preventDefault(); state.screen = t.dataset.screen; state.roleMenuOpen = false; render(); return; }
     if (a === 'toggle-role-menu') { e.stopPropagation(); state.roleMenuOpen = !state.roleMenuOpen; render(); return; }
@@ -844,6 +1112,11 @@
       render(); return;
     }
     if (a === 'logout') { state.user = null; state.role = null; state.screen = 'login'; state.roleMenuOpen = false; render(); return; }
+    if (a === 'onboarding-skip') { state.screen = 'login'; render(); return; }
+    if (a === 'onboarding-next') { state.onboardingSlide++; render(); return; }
+    if (a === 'onboarding-goto-signup') { state.screen = 'signup'; render(); return; }
+    if (a === 'back-to-login') { e.preventDefault(); state.recoveryEmailSent = false; state.screen = 'login'; render(); return; }
+    if (a === 'add-address') { toast('Gerenciamento de endereços em breve.', { type: 'info' }); return; }
 
     // Catalog
     if (a === 'filter-cat') { state.catalog.category = t.dataset.cat || null; render(); return; }
@@ -877,7 +1150,22 @@
     if (a === 'track') { toast('Mapa de rastreamento em breve.', { type: 'info' }); return; }
 
     // Operador — Products
-    if (a === 'new-product') { toast('Modal de cadastro completo em breve.', { type: 'info' }); return; }
+    if (a === 'new-product') { state.modal = { type: 'new-product', payload: {} }; render(); return; }
+    if (a === 'save-new-product') {
+      const name  = (document.getElementById('np-name')?.value || '').trim();
+      const ean   = (document.getElementById('np-ean')?.value  || '').trim();
+      const cat   = document.getElementById('np-cat')?.value   || CATEGORIES[0];
+      const size  = (document.getElementById('np-size')?.value || '').trim();
+      const price = parseFloat(document.getElementById('np-price')?.value);
+      const err   = document.getElementById('np-err');
+      if (!name)                      { err.textContent = 'Nome do produto é obrigatório.'; err.style.display = 'block'; return; }
+      if (isNaN(price) || price <= 0) { err.textContent = 'Informe um preço válido maior que zero.'; err.style.display = 'block'; return; }
+      const slug  = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const newId = 'p' + (state.products.length + 1);
+      state.products.push({ id: newId, ean: ean || `EAN-${newId}`, name, size, category: cat, price, stock: 0, img: `https://picsum.photos/seed/${slug}/400/400`, desc: '', nutri: null });
+      state.modal = { type: 'edit-stock', payload: { id: newId } };
+      toast(`"${name}" criado! Defina o estoque para ativar.`, { type: 'info' }); render(); return;
+    }
     if (a === 'edit-price') { state.modal = { type: 'edit-price', payload: { id } }; render(); return; }
     if (a === 'edit-stock') { state.modal = { type: 'edit-stock', payload: { id } }; render(); return; }
     if (a === 'save-price') {
@@ -897,6 +1185,15 @@
 
     // Operador — Queue
     if (a === 'print-comanda') { state.modal = { type: 'print-comanda', payload: { id } }; render(); return; }
+    if (a === 'intervene-order') { state.modal = { type: 'intervene-order', payload: { id } }; render(); return; }
+    if (a === 'save-intervention') {
+      const text = (document.getElementById('modal-intervention-text')?.value || '').trim();
+      const err  = document.getElementById('iv-err');
+      if (!text) { err.textContent = 'A justificativa é obrigatória.'; err.style.display = 'block'; return; }
+      const o = state.queue.find(x => x.id === id);
+      if (o) { o.intervened = true; o.late = false; o.interventionNote = text; }
+      state.modal = null; toast(`Intervenção registrada no pedido #${id}.`, { type: 'warn' }); render(); return;
+    }
     if (a === 'advance-order') {
       const o = state.queue.find(x => x.id === id);
       if (o) { o.status = o.status === 'aguardando' ? 'separando' : 'pronto'; o.minutesAgo = 0; o.late = false; }
@@ -908,7 +1205,24 @@
     }
 
     // Admin — Users
-    if (a === 'new-operator') { toast('Cadastro de operador em breve.', { type: 'info' }); return; }
+    if (a === 'new-operator') { state.modal = { type: 'new-operator', payload: {} }; render(); return; }
+    if (a === 'save-new-operator') {
+      const name  = (document.getElementById('no-name')?.value  || '').trim();
+      const email = (document.getElementById('no-email')?.value || '').trim().toLowerCase();
+      const perms = [];
+      if (document.getElementById('no-perm-estoque')?.checked) perms.push('estoque');
+      if (document.getElementById('no-perm-fila')?.checked)    perms.push('fila');
+      const err = document.getElementById('no-err');
+      if (!name)                           { err.textContent = 'Nome é obrigatório.'; err.style.display = 'block'; return; }
+      if (!email || !email.includes('@'))  { err.textContent = 'Informe um e-mail válido.'; err.style.display = 'block'; return; }
+      if (state.users.find(u => u.email === email)) { err.textContent = 'Já existe um usuário com esse e-mail.'; err.style.display = 'block'; return; }
+      const newId = 'u' + (state.users.length + 1);
+      const today = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+      state.users.push({ id: newId, name, email, role: 'operador', joined: today, orders: 0, active: true, perms });
+      const landingScreen = perms.includes('fila') ? 'queue' : 'products';
+      TEST_EMAILS[email] = { role: 'operador', screen: landingScreen };
+      state.modal = null; toast(`Operador "${name}" cadastrado. Login: ${email} / senha123`); render(); return;
+    }
     if (a === 'set-perms') { toast('Tela de permissões em breve.', { type: 'info' }); return; }
     if (a === 'remove-user') { state.modal = { type: 'remove-user', payload: { id } }; render(); return; }
     if (a === 'confirm-remove-user') {
@@ -917,7 +1231,8 @@
     }
 
     // Modal
-    if (a === 'close-modal' || a === 'close-modal-bg') { state.modal = null; render(); return; }
+    if (a === 'close-modal') { state.modal = null; render(); return; }
+    if (a === 'close-modal-bg') { if (e.target === t) { state.modal = null; render(); } return; }
   });
 
   // Form submit
@@ -933,6 +1248,32 @@
       state.screen = match.screen;
       render();
     }
+    if (e.target.matches('[data-action="submit-signup"]')) {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const name     = (fd.get('name')     || '').toString().trim();
+      const email    = (fd.get('email')    || '').toString().trim().toLowerCase();
+      const cpf      = (fd.get('cpf')      || '').toString().trim();
+      const password = (fd.get('password') || '').toString();
+      const confirm  = (fd.get('confirm')  || '').toString();
+      const err = document.getElementById('signup-err');
+      const cpfClean = cpf.replace(/\D/g, '');
+      if (password !== confirm) { err.textContent = 'As senhas não coincidem.'; err.style.display = 'block'; return; }
+      if (cpfClean.length !== 11) { err.textContent = 'CPF inválido. Use o formato 000.000.000-00.'; err.style.display = 'block'; return; }
+      if (state.users.find(u => u.email === email)) { err.textContent = 'Este e-mail já está cadastrado.'; err.style.display = 'block'; return; }
+      const newUser = { id: 'u' + (state.users.length + 1), name, email, cpf, role: 'cliente', joined: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }), orders: 0, active: true };
+      state.users.push(newUser);
+      state.user = { email, name, cpf };
+      state.role = 'cliente';
+      state.screen = 'catalog';
+      toast(`Bem-vindo(a), ${name.split(' ')[0]}!`);
+      render();
+    }
+    if (e.target.matches('[data-action="submit-recovery"]')) {
+      e.preventDefault();
+      state.recoveryEmailSent = true;
+      render();
+    }
   });
 
   // Input handlers
@@ -945,6 +1286,13 @@
     if (a === 'filter-pricemax') { state.catalog.priceMax = t.value; rerenderCatalogProducts(); }
     if (a === 'product-search') { state.productSearch = t.value; render(); }
     if (a === 'coupon-input') { state.coupon = null; /* don't auto-apply */ }
+    if (a === 'cpf-input') {
+      let v = t.value.replace(/\D/g, '').slice(0, 11);
+      if (v.length > 9)      v = v.slice(0, 3) + '.' + v.slice(3, 6) + '.' + v.slice(6, 9) + '-' + v.slice(9);
+      else if (v.length > 6) v = v.slice(0, 3) + '.' + v.slice(3, 6) + '.' + v.slice(6);
+      else if (v.length > 3) v = v.slice(0, 3) + '.' + v.slice(3);
+      t.value = v;
+    }
   });
 
   // Light update for catalog (avoid full re-render losing focus)
